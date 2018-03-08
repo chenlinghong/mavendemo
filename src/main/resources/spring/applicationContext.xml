@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--配置Spring Bean管理，使用注解方式-->
+    <!--开启注解扫描-->
+    <context:component-scan base-package="com.mavendemo.dao"/>
+    <context:component-scan base-package="com.mavendemo.controller"/>
+    <context:component-scan base-package="com.mavendemo.entity"/>
+    <context:component-scan base-package="com.mavendemo.service"/>
+    <context:component-scan base-package="com.mavendemo.util"/>
+    <context:component-scan base-package="com.mavendemo.vo"/>
+
+    <!--配置AOP-->
+    <aop:aspectj-autoproxy/>
+    <!--<aop:config proxy-target-class="true"/>-->
+
+    <!--配置C3P0-->
+    <!--加载数据库配置参数文件-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    <bean class="com.mchange.v2.c3p0.ComboPooledDataSource"
+          id="comboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driver}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="maxPoolSize" value="${c3p0.maxPoolSize}"/>
+        <property name="minPoolSize" value="${c3p0.minPoolSize}"/>
+        <property name="autoCommitOnClose" value="${c3p0.autoCommitOnClose}"/>
+        <property name="checkoutTimeout" value="${c3p0.checkoutTimeout}"/>
+        <property name="acquireRetryAttempts" value="${c3p0.acquireRetryAttempts}"/>
+    </bean>
+
+    <!--配置MyBatis-->
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean"
+          id="sqlSessionFactory">
+        <property name="dataSource" ref="comboPooledDataSource"/>
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+    </bean>
+
+    <!--配置事务管理器-->
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+          id="dataSourceTransactionManager">
+        <!--注入数据源，指定对哪个数据库进行操作-->
+        <property name="dataSource" ref="comboPooledDataSource"/>
+    </bean>
+
+    <!--开启事务注解-->
+    <tx:annotation-driven transaction-manager="dataSourceTransactionManager"/>
+
+    <!--导入mapper注入文件-->
+    <!--<import resource="mapper-bean.xml"/>-->
+
+    <!--userMapper-->
+    <bean class="org.mybatis.spring.mapper.MapperFactoryBean" id="userMapper">
+        <!--mapperInterface指定mapper接口-->
+        <property name="mapperInterface" value="com.mavendemo.dao.IUserDao"/>
+        <!--注入SqlSessionFactory-->
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+
+
+</beans>

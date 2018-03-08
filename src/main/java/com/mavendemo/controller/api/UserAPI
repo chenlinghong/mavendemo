@@ -1,0 +1,14 @@
+
+接口说明文档
+
+一、通过ID获取用户信息
+1、接口URL
+    http://localhost:8080/ssmmaven/user/get.form
+2、参数
+    id:用户ID，int
+3、返回（JSON字符串）
+    id：用户ID
+    name：用户姓名
+    password：用户密码
+4、示例
+    http://localhost:8080/ssmmaven/user/get.form?id=1
